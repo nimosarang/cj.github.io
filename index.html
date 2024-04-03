@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LaTeX to Speech with alt text</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script
+      id="MathJax-script"
+      async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      #mathInput {
+        width: 300px;
+        height: 100px;
+      }
+      #container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h1>LaTeX to Speech with altText</h1>
+      <textarea id="mathInput" placeholder="LaTeX 입력...">
+\int_{a}^{b} \frac{1}{\sqrt{x^2 + 1}} dx</textarea
+      ><br />
+      <button onclick="convertAndSpeak()">변환 및 음성 출력</button>
+      <div id="mathOutput"></div>
+    </div>
+    <script>
+      function convertAndSpeak() {
+        const input = document.getElementById("mathInput").value;
+        // MathJax를 사용하여 LaTeX를 MathML로 변환
+        MathJax.tex2chtmlPromise(input, { display: true })
+          .then(function (math) {
+            const altText =
+              "에이 비 와 분수 시작 루트 시작 엑스 의 제곱 플러스 일 루트 끝 분의 일 분수 끝 디 엑스";
+            math.setAttribute("alttext", altText);
+            const output = document.getElementById("mathOutput");
+            output.innerHTML = "";
+            output.appendChild(math);
+            MathJax.startup.document.clear();
+            MathJax.startup.document.updateDocument();
+            // alttext를 음성으로 변환
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(altText);
+            utterance.lang = "ko-KR"; // 한국어로 설정
+            synth.speak(utterance);
+          })
+          .catch(function (err) {
+            console.error("Error converting LaTeX to MathML:", err);
+          });
+      }
+    </script>
+  </body>
+</html>
